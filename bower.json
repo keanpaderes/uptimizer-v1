@@ -1,10 +1,10 @@
 {
-  "name": "angular-seed",
-  "description": "A starter project for AngularJS",
+  "name": "uptimizer-v1",
+  "description": "An Angular Optimizer Application using Simplex for CMSC 150",
   "version": "0.0.0",
-  "homepage": "https://github.com/angular/angular-seed",
+  "homepage": "https://github.com/keanpaderes/uptimizer-v1",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "dependencies": {
     "angular": "~1.5.0",
     "angular-route": "~1.5.0",
