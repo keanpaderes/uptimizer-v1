@@ -27,12 +27,6 @@ angular.module('uptimizer.ultop', [
             [0, 1, 0, 0, 0, 1, 0, 6],
             [-150, -175, 0, 0, 0, 0, 1, 0]
         ];
-
-        for(var i=0; i<testMatrix.length; i++){
-            console.log(testMatrix[i]);
-        }
-        // console.log($scope.objFxn.split(" "));
-        // console.log(testMatrix);
         SimplexService.simplex(testMatrix);
    }
 }]);
