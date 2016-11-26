@@ -1,8 +1,9 @@
 <div class="main">
     <div class="form">
         <label for="input_obj_fxn">Objective Function</label><br/>
-        <input id="input_obj_fxn" type="text"><br/>
+        <input id="input_obj_fxn" type="text" ng-model="objFxn"><br/>
         <label for="input_list_constraints">List of Constraints</label><br/>
-        <textarea id="input_list_constraints" rows="5" cols="50"></textarea>
+        <textarea id="input_list_constraints" rows="5" cols="50" ng-model="constraintsList"></textarea><br/>
+        <button ng-click="getInputs()">SEND</button>
     </div>
 </div>
