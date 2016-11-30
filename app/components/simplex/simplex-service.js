@@ -1,36 +1,83 @@
-angular.module('uptimizer.simplex', [])
+angular.module('uptimizer.simplex-service', ['uptimizer.simplex-tools'])
 
-.factory('SimplexService', function() {
+.factory('SimplexService',['SimplexTools', function(SimplexTools) {
     var SimplexService = {};
 
     //DISCLAIMER: All columns are treated as arrays
 
     //Main Functions
-    SimplexService.simplex = function(tableau) {
+    SimplexService.simplex = function(tableau, solnHeaders) {
         var returnTableau = angular.copy(tableau);
+        var initBasicSolution = SimplexService.initializeBasicSolution(solnHeaders);
+        var basicSolutionArray = [];
+        var iterationNumber = 0;
 
-        while(SimplexService.checkForNegative(
-            returnTableau[returnTableau.length-1])) {
+
+        while(1) {
+            basicSolutionArray = SimplexService.addToBasicSolutionArray(initBasicSolution, basicSolutionArray, returnTableau);
+
+            if(!SimplexTools.checkForNegative(returnTableau[returnTableau.length-1])) break;
+
             var pivotCol = SimplexService.getPivotColumn(returnTableau[returnTableau.length-1]);
             var tr = SimplexService.getTRCol(returnTableau, returnTableau.length, pivotCol);
             var pivotRow = SimplexService.getSmallestPositive(tr);
 
             returnTableau = SimplexService.simpleGaussJordan(returnTableau, pivotRow, pivotCol);
+            iterationNumber++;
         }
+
+        console.log(basicSolutionArray);
         for(var i=0; i<returnTableau.length; i++){
             console.log(returnTableau[i]);
         }
         //Should return object with solutions and shit
+        return {
+            "tableau" : returnTableau,
+            "solutionArray" : basicSolutionArray
+        };
+    };
+
+    SimplexService.initializeBasicSolution = function(solnHeaders) {
+        //ensure it has an "ans"
+        var returnObject = {};
+        returnObject.headers = angular.copy(solnHeaders);
+        returnObject.headers.splice(solnHeaders.indexOf("ans"),1);
+
+        return returnObject;
+    };
+
+    SimplexService.addToBasicSolutionArray = function(basicSoln, basicSolutionArray, currTableau) {
+        var baseObj = angular.copy(basicSoln);
+        var numberOfColumns = currTableau[0].length;
+        var returnArray = angular.copy(basicSolutionArray);
+        baseObj.values = [];
+
+        for(var i = 0; i < baseObj.headers.length; i++) {
+            var col = SimplexTools.getColumn(currTableau, i);
+            if(SimplexService.isCleared(col)) {
+                var rowNumber = col.indexOf(angular.copy(col).filter(function(value){
+                    return value > 0;
+                })[0]);
+                baseObj.values.push(
+                    currTableau[rowNumber][numberOfColumns-1]/currTableau[rowNumber][i]
+                );
+            } else {
+                baseObj.values.push(0);
+            }
+        }
+
+        returnArray.push(baseObj);
+        return returnArray;
     };
 
     SimplexService.simpleGaussJordan = function(matrix, row, col) {
-        matrix[row] = SimplexService.divideRowByNumber(matrix[row], matrix[row][col]);
+        matrix[row] = SimplexTools.divideRowByNumber(matrix[row], matrix[row][col]);
         var normalizedRow = angular.copy(matrix[row]);
         for(var i = 0; i<matrix.length; i++){
             if(i != row) {
-                var resultingRow = SimplexService.multiplyRowByNumber(
+                var resultingRow = SimplexTools.multiplyRowByNumber(
                     normalizedRow, matrix[i][col]);
-                matrix[i] = SimplexService.subtractRows(matrix[i], resultingRow);
+                matrix[i] = SimplexTools.subtractRows(matrix[i], resultingRow);
             }
         }
         return matrix;
@@ -74,42 +121,5 @@ angular.module('uptimizer.simplex', [])
         return smallest;
     };
 
-    //Additional Functions (Can make to another service)
-    SimplexService.getColumn = function(matrix, colIndex) {
-        return matrix.map(function(value,index) { return value[colIndex]; })
-    };
-
-    SimplexService.divideRowByNumber = function(row, number) {
-        var retDiv = angular.copy(row);
-        for(var i = 0; i < row.length; i++) {
-            retDiv[i] = retDiv[i]/number;
-        }
-        return retDiv;
-    };
-
-    SimplexService.multiplyRowByNumber = function(row, number) {
-        var retMult = angular.copy(row);
-        for(var i = 0; i < row.length; i++){
-            retMult[i] = retMult[i] * number;
-        }
-        return retMult;
-    }
-
-    SimplexService.subtractRows = function(minuend, subtrahend) {
-        var retSubt = angular.copy(minuend);
-        for(var i = 0; i<minuend.length; i++){
-            retSubt[i] = retSubt[i] - subtrahend[i];
-        }
-        return retSubt;
-    };
-
-    SimplexService.checkForNegative = function(row) {
-        var ret = false;
-        for(var i = 0; i < row.length; i++) {
-            if(row[i] < 0) return true;
-        }
-        return ret;
-    }
-
     return SimplexService;
-});
+}]);

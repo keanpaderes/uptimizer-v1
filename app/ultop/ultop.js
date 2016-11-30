@@ -2,7 +2,8 @@
 
 angular.module('uptimizer.ultop', [
     'ngRoute',
-    'uptimizer.simplex'
+    'uptimizer.simplex-service',
+    'uptimizer.simplex-tools'
 ])
 
 .config(['$routeProvider', function($routeProvider) {
@@ -16,6 +17,10 @@ angular.module('uptimizer.ultop', [
     $scope.objFxn = "";
     $scope.constraintsList = "";
 
+    $scope.checkInputs = function() {
+
+    };
+
     $scope.getInputs = function() {
         $scope.objFxn = $scope.objFxn.split("z =").pop().trim();
 
@@ -27,6 +32,8 @@ angular.module('uptimizer.ultop', [
             [0, 1, 0, 0, 0, 1, 0, 6],
             [-150, -175, 0, 0, 0, 0, 1, 0]
         ];
-        SimplexService.simplex(testMatrix);
+        var returnObject = SimplexService.simplex(testMatrix, ["x1", "x2", "s1", "s2", "s3", "s4","z","ans"]);
+
+        console.log(returnObject);
    }
 }]);

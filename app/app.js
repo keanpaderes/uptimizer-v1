@@ -6,7 +6,8 @@ angular.module('uptimizer', [
   'uptimizer.ultop',
   'uptimizer.view2',
   'uptimizer.version',
-  'uptimizer.simplex'
+  'uptimizer.simplex-service',
+  'uptimizer.simplex-tools'
 ]).
 config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {
   $locationProvider.hashPrefix('!');
