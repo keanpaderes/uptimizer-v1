@@ -1,9 +1,27 @@
 <div class="main">
     <div class="form">
         <label for="input_obj_fxn">Objective Function</label><br/>
-        <input id="input_obj_fxn" type="text" ng-model="objFxn"><br/>
-        <label for="input_list_constraints">List of Constraints</label><br/>
-        <textarea id="input_list_constraints" rows="5" cols="50" ng-model="constraintsList"></textarea><br/>
-        <button ng-click="getInputs()">SEND</button>
+        <input id="input_obj_fxn" type="text" ng-model="inputOF" ng-disabled="isOFDefined">
+        <button ng-click="defineObjFxn()" ng-hide="isOFDefined">DEFINE OBJECTIVE FUNCTION</button>
+        <button ng-click="removeObjFxn()" ng-show="isOFDefined">CHANGE OBJECTIVE FUNCTION</button>
+        <br/>
+        <label for="input_new_constraint">Add Constraint</label><br/>
+        <input id="input_new_constraint" type="text"
+            ng-model="inputConstraint" ng-disabled="!isOFDefined">
+        <button ng-click="addConstraint()" ng-show="isOFDefined">ADD CONSTRAINT</button><br/>
+        <button ng-click="getInputs()" ng-show="isOFDefined">SEND</button><br/>
+        <label>Objective function</label>
+        <ul>
+            <li ng-repeat="variable in objFxn.variableList">
+                {{variable}} = {{-(objFxn.valuesList[$index])}}
+            </li>
+        </ul>
+        <label>List of Constraints</label><br/>
+        <ul>
+            <li ng-repeat="slack in constraint.slackList">
+                slack var = {{slack}} and
+                constraint objects = {{constraint.constraintsList[$index].toString()}}
+            </li>
+        </ul>
     </div>
 </div>
