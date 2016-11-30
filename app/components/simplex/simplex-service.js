@@ -26,10 +26,6 @@ angular.module('uptimizer.simplex-service', ['uptimizer.simplex-tools'])
             iterationNumber++;
         }
 
-        console.log(basicSolutionArray);
-        for(var i=0; i<returnTableau.length; i++){
-            console.log(returnTableau[i]);
-        }
         //Should return object with solutions and shit
         return {
             "tableau" : returnTableau,
@@ -50,6 +46,8 @@ angular.module('uptimizer.simplex-service', ['uptimizer.simplex-tools'])
         var baseObj = angular.copy(basicSoln);
         var numberOfColumns = currTableau[0].length;
         var returnArray = angular.copy(basicSolutionArray);
+
+        baseObj.iteTableau = angular.copy(currTableau);
         baseObj.values = [];
 
         for(var i = 0; i < baseObj.headers.length; i++) {

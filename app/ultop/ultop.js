@@ -33,7 +33,9 @@ angular.module('uptimizer.ultop', [
             [-150, -175, 0, 0, 0, 0, 1, 0]
         ];
         var returnObject = SimplexService.simplex(testMatrix, ["x1", "x2", "s1", "s2", "s3", "s4","z","ans"]);
-
-        console.log(returnObject);
+        
+        for(var i=0; i<returnObject.tableau.length; i++){
+            console.log(returnObject.tableau[i]);
+        }
    }
 }]);
