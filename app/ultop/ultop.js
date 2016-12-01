@@ -73,27 +73,13 @@ angular.module('uptimizer.ultop', [
             $scope.objFxn.valuesList, $scope.constraint.constraintsList,
             $scope.objFxn.variableList
         );
+        var headers = angular.copy($scope.objFxn.variableList)
+            .concat($scope.constraint.slackList).concat(['z', "ans"]);
 
-        //define the headers
-        // var columnHeaders =
-        //     SimplexTools.createColumnHeaders(
-        //         $scope.objFxn.variableList, $scope.);
-        //
-        // console.log(columnHeaders);
+        var returnObject = SimplexService.simplex(inputTableau, headers);
 
-        //console.log(zInput.split(" + "));
-        //to delete!
-        var testMatrix = [
-            [7, 11, 1, 0, 0, 0, 0, 77],
-            [10, 8, 0, 1, 0, 0, 0, 80],
-            [1, 0, 0, 0, 1, 0, 0, 9],
-            [0, 1, 0, 0, 0, 1, 0, 6],
-            [-150, -175, 0, 0, 0, 0, 1, 0]
-        ];
-        // var returnObject = SimplexService.simplex(testMatrix, ["x1", "x2", "s1", "s2", "s3", "s4","z","ans"]);
-
-        // for(var i=0; i<returnObject.tableau.length; i++){
-        //     console.log(returnObject.tableau[i]);
-        // }
+        for(var i=0; i<returnObject.tableau.length; i++){
+            console.log(returnObject.tableau[i]);
+        }
    }
 }]);

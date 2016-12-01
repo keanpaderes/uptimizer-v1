@@ -56,31 +56,46 @@ angular.module('uptimizer.simplex-tools', [])
         return retArr;
     }
 
-    SimplexTools.parseConstraint = function(constraintObject, variableList,
-        numOfConstraints, colNum) {
-        var retArr = [], i = 0;
-        var ans = constraintObject[1];
+    SimplexTools.createRow = function(constraintObject, variableList,
+        numOfConstraints, colNum, isConstraint) {
+        var retArr = [], i = 0, j = 0, ans = 0, z = 0;
 
-        // if(constraintObject[0].includes(" + ")) {
-        //     var sC = constraintObject[0].split(" + ");
-        //
-        //     for(i = 0; i < sC.length; i++){
-        //         var spl = sC[i].split(" * ");
-        //
-        //         if(variableList.indexOf(spl[1]) != -1){
-        //             retArr.push(parseInt(spl[0]));
-        //         }
-        //     }
-        //     if(sC.length != variableList.length){
-        //     }
-        // } else {
-        //
-        // }
-        // for(i = 0; i < numOfConstraints; i++){
-        //     if(colNum == i) {
-        //         retArr.push(1);
-        //     } else retArr.push(0);
-        // }
+        if(isConstraint){
+            ans = parseInt(constraintObject[1]);
+
+            var sC = constraintObject[0].split(" + ");
+
+            for(i = 0; i < variableList.length; i++){
+                if(sC.length != j){
+                    var spl = sC[j].split(" * ");
+                    if(spl[1] === variableList[i]){
+                        retArr.push(parseInt(spl[0]));
+                        j++;
+                    } else {
+                        retArr.push(0);
+                    }
+                } else {
+                    retArr.push(0);
+                }
+            }
+
+            z = 0
+        } else {
+            for (i = 0; i < constraintObject.length; i++){
+                retArr.push(constraintObject[i]);
+            }
+
+            z = 1;
+            ans = 0;
+        }
+        
+        for(i = 0; i < numOfConstraints; i++){
+            if(colNum == i) {
+                retArr.push(1);
+            } else retArr.push(0);
+        }
+        retArr.push(z);
+        retArr.push(ans);
         return retArr;
     };
 
@@ -91,14 +106,21 @@ angular.module('uptimizer.simplex-tools', [])
         var i = 0, //colNum's +2 is for z and ans
             colNum = valueList.length + constraintsList.length + 2;
 
+        //constraints
         for(i = 0; i < constraintsList.length; i++){
-            var row = SimplexTools.parseConstraint(
+            var row = SimplexTools.createRow(
                 constraintsList[i], variableList,
-                constraintsList.length, i
+                constraintsList.length, i, true
             );
-            console.log(row);
             retTab.push(row);
         }
+        //obj function
+        var row = SimplexTools.createRow(
+            valueList, variableList,
+            constraintsList.length, i, false
+        );
+        retTab.push(row);
+        return retTab;
     };
 
     return SimplexTools;
