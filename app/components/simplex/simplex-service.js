@@ -52,13 +52,17 @@ angular.module('uptimizer.simplex-service', ['uptimizer.simplex-tools'])
 
         for(var i = 0; i < baseObj.headers.length; i++) {
             var col = SimplexTools.getColumn(currTableau, i);
+
             if(SimplexService.isCleared(col)) {
                 var rowNumber = col.indexOf(angular.copy(col).filter(function(value){
-                    return value > 0;
+                    return value != 0;
                 })[0]);
-                baseObj.values.push(
-                    currTableau[rowNumber][numberOfColumns-1]/currTableau[rowNumber][i]
-                );
+
+                var pushVal =
+                    currTableau[rowNumber][numberOfColumns-1] * currTableau[rowNumber][i] === 0?
+                    0 : currTableau[rowNumber][numberOfColumns-1] * currTableau[rowNumber][i];
+
+                baseObj.values.push(pushVal);
             } else {
                 baseObj.values.push(0);
             }

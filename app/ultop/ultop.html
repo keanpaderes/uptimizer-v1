@@ -5,15 +5,26 @@
         <button ng-click="defineObjFxn()" ng-hide="isOFDefined">DEFINE OBJECTIVE FUNCTION</button>
         <button ng-click="removeObjFxn()" ng-show="isOFDefined">CHANGE OBJECTIVE FUNCTION</button>
         <br/>
-        <label for="input_new_constraint">Add Constraint</label><br/>
-        <input id="input_new_constraint" type="text"
-            ng-model="inputConstraint" ng-disabled="!isOFDefined">
-        <button ng-click="addConstraint()" ng-show="isOFDefined">ADD CONSTRAINT</button><br/>
-        <button ng-click="getInputs()" ng-show="isOFDefined">SEND</button><br/>
+        <div ng-show="isOFDefined">
+            <form>
+                <input id="input_min" type="radio" ng-model="minMax" value="min">
+                <label for="input_min">Minimization</label>
+
+                <input id="input_max" type="radio" ng-model="minMax" value="max">
+                <label for="input_max">Maximization</label>
+            </form><br/>
+            <label>{{disclaimerString}}</label>
+        </div><br/>
+        <div ng-show='minMax != "none"'>
+            <label for="input_new_constraint">Add Constraint</label><br/>
+            <input id="input_new_constraint" type="text" ng-model="inputConstraint">
+            <button ng-click="addConstraint()">ADD CONSTRAINT</button><br/>
+            <button ng-click="getInputs()">SEND</button><br/>
+        </div>
         <label>Objective function</label>
         <ul>
             <li ng-repeat="variable in objFxn.variableList">
-                {{variable}} = {{-(objFxn.valuesList[$index])}}
+                {{variable}} = {{objFxn.valuesList[$index]}}
             </li>
         </ul>
         <label>List of Constraints</label><br/>
