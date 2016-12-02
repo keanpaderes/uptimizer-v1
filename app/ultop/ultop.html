@@ -1,38 +1,158 @@
-<div class="main">
-    <div class="form">
-        <label for="input_obj_fxn">Objective Function</label><br/>
-        <input id="input_obj_fxn" type="text" ng-model="inputOF" ng-disabled="isOFDefined">
-        <button ng-click="defineObjFxn()" ng-hide="isOFDefined">DEFINE OBJECTIVE FUNCTION</button>
-        <button ng-click="removeObjFxn()" ng-show="isOFDefined">CHANGE OBJECTIVE FUNCTION</button>
-        <br/>
-        <div ng-show="isOFDefined">
-            <form>
-                <input id="input_min" type="radio" ng-model="minMax" value="min">
-                <label for="input_min">Minimization</label>
+<div class="main container-fluid">
+    <div class="center">
 
-                <input id="input_max" type="radio" ng-model="minMax" value="max">
-                <label for="input_max">Maximization</label>
-            </form><br/>
-            <label>{{disclaimerString}}</label>
-        </div><br/>
-        <div ng-show='minMax != "none"'>
-            <label for="input_new_constraint">Add Constraint</label><br/>
-            <input id="input_new_constraint" type="text" ng-model="inputConstraint">
-            <button ng-click="addConstraint()">ADD CONSTRAINT</button><br/>
-            <button ng-click="getInputs()">SEND</button><br/>
+        <div class="row">
+            <div class="col-lg-12" style="height:30px;"></div>
+            <div class="col-lg-12">
+                <h1>Ultimate Optimizer</h1>
+            </div>
+            <div class="col-lg-12"><hr/></div>
+            <div class="col-lg-12">
+                <a href="#!/dietsolv" class="right">Link to Diet Solver</a>
+            </div>
+            <div class="col-lg-12" style="height:30px;"></div>
+            <div class="col-lg-5">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h1 class="panel-title">Settings Panel</h1>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <label for="input-obj-fxn" class="col-lg-2">Objective Function</label>
+                            <div class="col-lg-7">
+                                <input type="text" class="form-control" id="input-obj-fxn" ng-model="inputOF" ng-disabled="isOFDefined">
+                            </div>
+                            <div class="col-lg-2">
+                                <button class="btn btn-default" ng-click="defineObjFxn()" ng-hide="isOFDefined">DEFINE</button>
+                                <button class="btn btn-danger" ng-click="removeObjFxn()" ng-show="isOFDefined">CHANGE</button>
+                            </div>
+                        </div>
+                        <div class="row" ng-show="isOFDefined">
+                            <div class="col-lg-12" class="center" ng-show="showWarn">
+                                <div class="alert alert-dismissible alert-warning">
+                                    <button type="button" class="close" ng-click="showWarn = false">&times;</button>
+                                    <h4>Warning!</h4>
+                                    <p>Usage of mixed constraints is not yet supported.</p>
+                                </div>
+                            </div>
+                            <label class="col-lg-2">Type</label>
+                            <div class="col-lg-7">
+                                <form>
+                                    <input id="input-min" type="radio" ng-model="minMax" value="min">
+                                    <label for="input-min"><h5>Minimization</h5></label>
+
+                                    <input id="input-max" type="radio" ng-model="minMax" value="max">
+                                    <label for="input-min"><h5>Maximization</h5></label>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="row" ng-show='minMax != "none"'>
+                            <div class="col-lg-12" class="center" ng-show="showError">
+                                <div class="alert alert-dismissible alert-danger">
+                                    <button type="button" class="close" ng-click="showError = false">&times;</button>
+                                    <h4>Error!</h4>
+                                    <p>Mixed constraints are not yet supported :(</p>
+                                </div>
+                            </div>
+                            <label for="input-new-constraint" class="col-lg-2">Add Constraint</label>
+                            <div class="col-lg-7">
+                                <input type="text" class="form-control" id="input-new-constraint" ng-model="inputConstraint">
+                            </div>
+                            <div class="col-lg-2">
+                                <button class="btn btn-primary" ng-click="addConstraint()">ADD</button>
+                            </div>
+                        </div>
+                        <div class="row" ng-show='minMax != "none"'>
+                            <div class="col-lg-12" style="height:25px;"></div>
+                            <label class="col-lg-12">Constraint List</label>
+                            <div class="col-lg-12">
+                                <div class="well">
+                                    <ul>
+                                        <li ng-repeat="con in constraint.constraintsList">
+                                            Constraint [{{$index}}] = {{con[0]}}, ans = {{con[1]}}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-show='minMax != "none"'>
+                            <div class="col-lg-2 col-lg-offset-9">
+                                <button class="btn btn-primary" ng-click="getInputs()">SEND</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h1 class="panel-title">Results Panel</h1>
+                    </div>
+                    <div ng-show="isResultComputed">
+                        <div class="panel-body">
+                            <div class="row">
+                                <label class="col-lg-12">Iteration # {{currentPage+1}}</label>
+                                <label class="col-lg-12" ng-hide='minMax == "min"'>
+                                    Basic Solution
+                                </label>
+                                <div class="col-lg-12" ng-hide='minMax == "min"'>
+                                    <!--Basic Solution-->
+                                    <table class="table table-bordered table-responsive">
+                                        <tr>
+                                            <th ng-repeat="header in solutionHeaders">
+                                                {{header}}
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <td ng-repeat="value in solutionValues track by $index">
+                                                {{value | number:4}}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <label class="col-lg-12">Tableau</label>
+                                <div class="col-lg-12">
+                                    <table class="table table-bordered">
+                                        <tr ng-repeat="rows in solutionTableau">
+                                            <td ng-repeat="val in rows track by $index">
+                                                {{val | number:4}}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-lg-12">
+                                    <nav aria-label="...">
+                                        <ul class="pager">
+                                            <li>
+                                                <button class="btn btn-primary"
+                                                ng-disabled="currentPage == 0"
+                                                ng-click="currentPage = currentPage-1">
+                                                    PREV
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="btn btn-primary"
+                                                ng-disabled="currentPage
+                                                    == results.solutionArray.length-1"
+                                                ng-click="currentPage = currentPage+1">
+                                                    NEXT
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div ng-hide="isResultComputed">
+                        <div class="panel-body">
+                            <h3>No results yet.</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <label>Objective function</label>
-        <ul>
-            <li ng-repeat="variable in objFxn.variableList">
-                {{variable}} = {{objFxn.valuesList[$index]}}
-            </li>
-        </ul>
-        <label>List of Constraints</label><br/>
-        <ul>
-            <li ng-repeat="slack in constraint.slackList">
-                slack var = {{slack}} and
-                constraint objects = {{constraint.constraintsList[$index].toString()}}
-            </li>
-        </ul>
     </div>
 </div>

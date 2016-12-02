@@ -29,9 +29,17 @@ angular.module('uptimizer.ultop', [
         "constraintsList" : []
     };
     $scope.minMax = "none";
-    $scope.disclaimerString = "";
     $scope.isOFDefined = false;
     $scope.isMaxMinDefined = false;
+    $scope.isResultComputed = false;
+    $scope.showWarn = false;
+    $scope.showError = false;
+
+    $scope.currentPage = 0;
+    $scope.basicSolution = {};
+    $scope.solutionTableau = [];
+    $scope.solutionHeaders = [];
+    $scope.solutionValues = [];
 
     $scope.defineObjFxn = function() {
         var oF = $scope.inputOF.split("z =").pop().trim();
@@ -60,25 +68,19 @@ angular.module('uptimizer.ultop', [
             "constraintsList" : []
         };
         $scope.minMax = "none";
-        $scope.disclaimerString = "";
         $scope.isOFDefined = false;
         $scope.isMaxMinDefined = false;
+        $scope.isResultComputed = false;
+        $scope.showWarn = false;
+        $scope.showError = false;
+
+        $scope.currentPage = 0;
+        $scope.basicSolution = {};
+        $scope.solutionTableau = [];
+        $scope.solutionHeaders = [];
+        $scope.solutionValues = [];
     };
 
-    $scope.$watch('minMax', function(minMax) {
-        if(minMax != "none"){
-            if(minMax == "max"){
-                //multiply *-1 by values list
-                for(var i = 0; i < $scope.objFxn.valuesList.length; i++){
-                    $scope.objFxn.valuesList[i] =
-                        $scope.objFxn.valuesList[i] * -1;
-                }
-                $scope.disclaimerString = "Usage of mixed constraints is not yet fully tested.";
-            } else {
-                $scope.disclaimerString = "Usage of mixed constraints is not yet supported.";
-            }
-        }
-    });
 
     $scope.addConstraint = function() {
         //heeeerrree
@@ -90,9 +92,8 @@ angular.module('uptimizer.ultop', [
                 var constraintArray = $scope.inputConstraint.split(" >= ");
                 constraintArray.push("1");
                 $scope.constraint.constraintsList.push(constraintArray);
-                $scope.inputConstraint= "";
             } else {
-                alert("Mixed constraints not yet supported :(");
+                $scope.showError = true;
             }
         } else{
             $scope.constraint.slackList.push(
@@ -102,14 +103,14 @@ angular.module('uptimizer.ultop', [
                 var constraintArray = $scope.inputConstraint.split(" <= ");
                 constraintArray.push("1");
                 $scope.constraint.constraintsList.push(constraintArray);
-                $scope.inputConstraint= "";
             } else {
                 var constraintArray = $scope.inputConstraint.split(" >= ");
                 constraintArray.push("-1");
                 $scope.constraint.constraintsList.push(constraintArray);
-                $scope.inputConstraint= "";
             }
         }
+
+        $scope.inputConstraint= "";
     };
 
     $scope.getInputs = function() {
@@ -130,11 +131,41 @@ angular.module('uptimizer.ultop', [
             inputObj = SimplexTools.convertToDualMaximization(augCoeff);
         }
 
-        var returnObject = SimplexService.simplex(
+        $scope.results = SimplexService.simplex(
             inputObj.inputTableau, inputObj.inputHeaders);
 
-            for(var i=0; i<returnObject.tableau.length; i++){
-                console.log(returnObject.tableau[i]);
-            }
+        $scope.isResultComputed = true;
    }
+
+   $scope.$watch('isResultComputed', function(isResultComputed) {
+       if(isResultComputed){
+           $scope.basicSolution = $scope.results.solutionArray[$scope.currentPage];
+           $scope.solutionTableau = $scope.basicSolution.iteTableau;
+           $scope.solutionHeaders = $scope.basicSolution.headers;
+           $scope.solutionValues = $scope.basicSolution.values;
+       }
+   });
+
+   $scope.$watch('minMax', function(minMax) {
+       if(minMax != "none"){
+           if(minMax == "max"){
+               //multiply *-1 by values list
+               for(var i = 0; i < $scope.objFxn.valuesList.length; i++){
+                   $scope.objFxn.valuesList[i] =
+                   $scope.objFxn.valuesList[i] * -1;
+               }
+           } else {
+               $scope.showWarn = true;
+           }
+       }
+   });
+
+   $scope.$watch('currentPage', function(currentPage) {
+        if($scope.isResultComputed){
+            $scope.basicSolution = $scope.results.solutionArray[$scope.currentPage];
+            $scope.solutionTableau = $scope.basicSolution.iteTableau;
+            $scope.solutionHeaders = $scope.basicSolution.headers;
+            $scope.solutionValues = $scope.basicSolution.values;
+        }
+   });
 }]);

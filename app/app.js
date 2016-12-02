@@ -4,7 +4,7 @@
 angular.module('uptimizer', [
   'ngRoute',
   'uptimizer.ultop',
-  'uptimizer.view2',
+  'uptimizer.dietsolv',
   'uptimizer.version',
   'uptimizer.simplex-service',
   'uptimizer.simplex-tools'
