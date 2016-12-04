@@ -33,7 +33,8 @@ angular.module('uptimizer.ultop', [
     $scope.isMaxMinDefined = false;
     $scope.isResultComputed = false;
     $scope.showWarn = false;
-    $scope.showError = false;
+    $scope.showError = [false, false];
+    $scope.showTips = [true, true];
 
     $scope.currentPage = 0;
     $scope.basicSolution = {};
@@ -72,7 +73,7 @@ angular.module('uptimizer.ultop', [
         $scope.isMaxMinDefined = false;
         $scope.isResultComputed = false;
         $scope.showWarn = false;
-        $scope.showError = false;
+        $scope.showError = [false, false];
 
         $scope.currentPage = 0;
         $scope.basicSolution = {};
@@ -83,7 +84,6 @@ angular.module('uptimizer.ultop', [
 
 
     $scope.addConstraint = function() {
-        //heeeerrree
         if($scope.minMax == "min"){
             if($scope.inputConstraint.includes(" >= ")){
                 $scope.constraint.slackList.push(
@@ -93,7 +93,7 @@ angular.module('uptimizer.ultop', [
                 constraintArray.push("1");
                 $scope.constraint.constraintsList.push(constraintArray);
             } else {
-                $scope.showError = true;
+                $scope.showError[0] = true;
             }
         } else{
             $scope.constraint.slackList.push(
@@ -113,28 +113,38 @@ angular.module('uptimizer.ultop', [
         $scope.inputConstraint= "";
     };
 
+    $scope.removeConstraints = function() {
+        $scope.constraint.slackList = [];
+        $scope.constraint.constraintsList = [];
+    };
+
+
     $scope.getInputs = function() {
         var inputObj = {};
-        //hereee
-        if($scope.minMax == "max") {
-            inputObj.inputTableau = SimplexTools.createTableau(
-                $scope.objFxn.valuesList, $scope.constraint.constraintsList,
-                $scope.objFxn.variableList
-            );
-            inputObj.inputHeaders = angular.copy($scope.objFxn.variableList)
-                .concat($scope.constraint.slackList).concat(['z', "ans"]);
+
+        if($scope.constraint.constraintsList.length == 0){
+            $scope.showError[1] = true;
         } else {
-            var augCoeff = SimplexTools.createAugCoeff(
-                $scope.objFxn.valuesList, $scope.constraint.constraintsList,
-                $scope.objFxn.variableList
-            );
-            inputObj = SimplexTools.convertToDualMaximization(augCoeff);
+            if($scope.minMax == "max") {
+                inputObj.inputTableau = SimplexTools.createTableau(
+                    $scope.objFxn.valuesList, $scope.constraint.constraintsList,
+                    $scope.objFxn.variableList
+                );
+                inputObj.inputHeaders = angular.copy($scope.objFxn.variableList)
+                    .concat($scope.constraint.slackList).concat(['z', "ans"]);
+            } else {
+                var augCoeff = SimplexTools.createAugCoeff(
+                    $scope.objFxn.valuesList, $scope.constraint.constraintsList,
+                    $scope.objFxn.variableList
+                );
+                inputObj = SimplexTools.convertToDualMaximization(augCoeff);
+            }
+
+            $scope.results = SimplexService.simplex(
+                inputObj.inputTableau, inputObj.inputHeaders);
+
+            $scope.isResultComputed = true;
         }
-
-        $scope.results = SimplexService.simplex(
-            inputObj.inputTableau, inputObj.inputHeaders);
-
-        $scope.isResultComputed = true;
    }
 
    $scope.$watch('isResultComputed', function(isResultComputed) {
@@ -152,7 +162,7 @@ angular.module('uptimizer.ultop', [
                //multiply *-1 by values list
                for(var i = 0; i < $scope.objFxn.valuesList.length; i++){
                    $scope.objFxn.valuesList[i] =
-                   $scope.objFxn.valuesList[i] * -1;
+                    $scope.objFxn.valuesList[i] * -1;
                }
            } else {
                $scope.showWarn = true;
