@@ -11,6 +11,8 @@
                 <a href="#!/dietsolv" class="right">Link to Diet Solver</a>
             </div>
             <div class="col-lg-12" style="height:30px;"></div>
+        </div>
+        <div class="row">
             <div class="col-lg-5">
                 <div class="panel panel-primary">
                     <div class="panel-heading">
@@ -18,6 +20,15 @@
                     </div>
                     <div class="panel-body">
                         <div class="row">
+                            <div class="col-lg-12" class="center" ng-show="showTips[0]">
+                                <div class="alert alert-dismissible alert-info">
+                                    <button type="button" class="close" ng-click="showTips[0] = false">&times;</button>
+                                    <h4>Tip:</h4>
+                                    <p>Use 'z = ' to define the objective function followed by 'constant * xn'.
+                                        The variables must be separated by ' + ' and n must be ascending starting from 1.
+                                    </p>
+                                </div>
+                            </div>
                             <label for="input-obj-fxn" class="col-lg-2">Objective Function</label>
                             <div class="col-lg-7">
                                 <input type="text" class="form-control" id="input-obj-fxn" ng-model="inputOF" ng-disabled="isOFDefined">
@@ -47,11 +58,20 @@
                             </div>
                         </div>
                         <div class="row" ng-show='minMax != "none"'>
-                            <div class="col-lg-12" class="center" ng-show="showError">
+                            <div class="col-lg-12" class="center" ng-show="showError[0]">
                                 <div class="alert alert-dismissible alert-danger">
-                                    <button type="button" class="close" ng-click="showError = false">&times;</button>
+                                    <button type="button" class="close" ng-click="showError[0] = false">&times;</button>
                                     <h4>Error!</h4>
                                     <p>Mixed constraints are not yet supported :(</p>
+                                </div>
+                            </div>
+                            <div class="col-lg-12" class="center" ng-show="showTips[1]">
+                                <div class="alert alert-dismissible alert-info">
+                                    <button type="button" class="close" ng-click="showTips[1] = false">&times;</button>
+                                    <h4>Tip:</h4>
+                                    <p>Syntax of constraint is 'const * x1 + ... + const * xn <= value'. Maximization can take
+                                        mixed constraints ("<=", ">=") but minimization can only take ">=".
+                                    </p>
                                 </div>
                             </div>
                             <label for="input-new-constraint" class="col-lg-2">Add Constraint</label>
@@ -64,12 +84,22 @@
                         </div>
                         <div class="row" ng-show='minMax != "none"'>
                             <div class="col-lg-12" style="height:25px;"></div>
-                            <label class="col-lg-12">Constraint List</label>
+                            <div class="col-lg-12" class="center" ng-show="showError[1]">
+                                <div class="alert alert-dismissible alert-danger">
+                                    <button type="button" class="close" ng-click="showError[1] = false">&times;</button>
+                                    <h4>Error!</h4>
+                                    <p>No constraints given!</p>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <label>Constraint List</label>
+                                <label class="pull-right" ng-click="removeConstraints()">REMOVE</label>
+                            </div>
                             <div class="col-lg-12">
                                 <div class="well">
                                     <ul>
                                         <li ng-repeat="con in constraint.constraintsList">
-                                            Constraint [{{$index}}] = {{con[0]}}, ans = {{con[1]}}
+                                            <label>{{constraint.slackList[$index]}} = {{con[0]}}</label>
                                         </li>
                                     </ul>
                                 </div>
@@ -93,10 +123,10 @@
                         <div class="panel-body">
                             <div class="row">
                                 <label class="col-lg-12">Iteration # {{currentPage+1}}</label>
-                                <label class="col-lg-12" ng-hide='minMax == "min"'>
+                                <label class="col-lg-12">
                                     Basic Solution
                                 </label>
-                                <div class="col-lg-12" ng-hide='minMax == "min"'>
+                                <div class="col-lg-12">
                                     <!--Basic Solution-->
                                     <table class="table table-bordered table-responsive">
                                         <tr>
